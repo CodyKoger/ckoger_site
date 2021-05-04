@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="referee_distributer.js"></script>
+    <script src="PriorityQueue.js"></script>
+    
     <title>Cody's Referee Distriuter</title>
 </head>
 <body>
@@ -45,11 +46,10 @@
         <div class="information-catagories">
             <h2>Officials</h2>
             <label for="add-new-official">New Official Line</label>
-            <input type="button" value="+" id="add-official"> 
-            <input type="button" value="-" id="remove-official">
+            <input type="button" value="+" class="add-official"> 
+            <input type="button" value="-" class="remove-official">
             <br>
             <h4>In order: [Official's Name, Catagory, State, Available for: {X, Y, Jury}]</h4>
-            <input type="button" value="Generate Lists" class="generate-lists-btn">
         </div>
         <div class="official-info">
             <label for="official-number">1</label>
@@ -66,6 +66,13 @@
             <input type="checkbox" name="official-jury" id="official-jury">
         </div>
 
+        <div class="add-remove-line-gen-lists">
+            <br><br>
+            <input type="button" value="+" class="add-official">
+            <input type="button" value="-" class="remove-official">
+            <input type="button" value="Generate Lists" class="generate-lists-btn">
+        </div>
+
         <div class="generated-lists">
 
         </div>
@@ -73,5 +80,6 @@
         <footer><br><br> a.21.05.01 <br>
                 Bug report: <a href="mailto:cody.m.koger@gmail.com">cody.m.koger@gmail.com</a>
         </footer>
+        <script src="referee_distributer.js"></script>
 </body>
 </html>
