@@ -18,10 +18,14 @@ class PriorityQueue {
 
 
     pop(){
-        let topPriority = this.heapArr[root][0];
+        let topPriority = this.heapArr[root];
         this.heapArr[root] = this.heapArr.pop();
+        if (this.heapArr[root] == topPriority){ 
+            console.log('samsies');
+            this.heapArr.pop();
+            return topPriority[0];}
         this.siftDown();
-        return topPriority;
+        return topPriority[0];
     }
 
     push(item, priority){

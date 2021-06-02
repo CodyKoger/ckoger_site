@@ -45,6 +45,16 @@ class referee {
         this.prio = generatePriority(catagory, X, Y, Jury);
     }
 
+    canJury() {
+        return this.Jury;
+    }
+    canX() {
+        return this.X;
+    }
+    canY() {
+        return this.Y;
+    }
+
     incrPrio(val) {
         this.prio += val;
     }
@@ -119,13 +129,16 @@ function generateArrOfOfficials(){
 
     return arr;
 }
-document.getElementById('generate-lists-btn').onclick = function(){generateArrOfOfficials();}
+
 
 
 
 class Mat {
     constructor(){
         this.officials = new Array(128);
+        this.officials.forEach(element => {
+            element = null;
+        });
     }
 
     addOfficial(off){
@@ -137,9 +150,28 @@ class Mat {
         }
         this.officials.push(off);
     }
+    
+    addOfficialStartAt(off, index){
+        for (let i =index; i< this.officials.length; i++ ){
+            if (this.officials[i] == null){
+                this.officials[i] = off;
+                return;
+            }            
+        }
+        this.officials.push(off);
+    }
 
     addOfficialAt(off, index){
         this.officials[index] = off;
+    }
+
+    hasX(){
+        if(this.officials[0]==null) return false;
+        return true;
+    }
+    hasY(){
+        if(this.officials[1]==null) return false;
+        return true;
     }
 
     size(){
@@ -200,6 +232,16 @@ class Mat {
         div.appendChild(table);
         return div;
     }
+
+    toString(){
+        let string = '';
+        for (let i =0; i< this.officials.length; i++ ){
+            if (this.officials[i] != null){
+                string+= this.officials[i].name + '   ';
+            }            
+        }
+        return string;
+    }
 }
 
 
@@ -214,14 +256,131 @@ class Mat {
 // mat1.addOfficialAt(off4, 6);
 // mat1.addOfficial(off3);
 // document.getElementById('list-1').after(mat1.matAsDiv(2));
-let arr = [];
-for (let int = 0; int < 24; int++){
-    arr.push(new referee('ref '+ int, 'M' +(1+ int%3), 'st' + int, 0==int%3, 1==int%3 || 0==int%6, 0==int%8));
+
+// for (let int = 0; int < 24; int++){
+//     arr.push(new referee('ref '+ int, 'M' +(1+ int%3), 'st' + int, 0==int%3, 1==int%3 || 0==int%6, 0==int%8));
+// }
+// console.log(arr);
+// generateLists(4, 2, arr);
+let arr = [45];
+if(true){
+let off00 = new referee('Mr Ref 00', 'M1', '01', true, false, true);
+
+let off01 = new referee('Mr Ref 01', 'M1', '01', true, false, true);
+let off02 = new referee('Mr Ref 02', 'M1', '05', true, false, true);
+let off03 = new referee('Mr Ref 03', 'M1', '08', true, false, true);
+let off04 = new referee('Mr Ref 04', 'M1', '11', true, false, true);
+
+let off05 = new referee('Mr Ref 05', 'M1', '06', true, false, true);
+let off06 = new referee('Mr Ref 06', 'M1', '04', true, false, true);
+let off07 = new referee('Mr Ref 07', 'M1', '17', true, true, true);
+let off08 = new referee('Mr Ref 08', 'M1', '07', true, true, true);
+
+let off09 = new referee('Mr Ref 09', 'M1', '09', true, true, false);
+let off10 = new referee('Mr Ref 10', 'M1', '12', true, true, false);
+let off11 = new referee('Mr Ref 11', 'M1', '01', true, true, false);
+let off12 = new referee('Mr Ref 12', 'M1', '15', true, true, false);
+
+let off13 = new referee('Mr Ref 13', 'M1', '02', true, true, false);
+let off14 = new referee('Mr Ref 14', 'M1', '14', true, true, false);
+let off15 = new referee('Mr Ref 15', 'M1', '18', true, true, false);
+let off16 = new referee('Mr Ref 16', 'M1', '03', true, true, false);
+
+let off17 = new referee('Mr Ref 17', 'M1', '16', true, true, false);
+let off18 = new referee('Mr Ref 18', 'M1', '10', true, true, false);
+let off19 = new referee('Mr Ref 19', 'M1', '01', true, true, false);
+let off20 = new referee('Mr Ref 20', 'M1', '02', true, true, false);
+
+let off21 = new referee('Mr Ref 21', 'M1', '08', true, true, false);
+let off22 = new referee('Mr Ref 22', 'M1', '14', true, true, false);
+let off23 = new referee('Mr Ref 23', 'M1', '18', false, true, false);
+let off24 = new referee('Mr Ref 24', 'M1', '15', false, true, false);
+
+let off25 = new referee('Mr Ref 25', 'M1C', '12', false, true, false);
+let off26 = new referee('Mr Ref 26', 'M1C', '17', false, true, false);
+let off27 = new referee('Mr Ref 27', 'M1C', '06', false, true, false);
+let off28 = new referee('Mr Ref 28', 'M1C', '04', false, true, false);
+
+let off29 = new referee('Mr Ref 29', 'M1C', '16', false, false, false);
+let off30 = new referee('Mr Ref 30', 'M1C', '05', false, false, false);
+let off31 = new referee('Mr Ref 31', 'M1C', '01', false, false, false);
+let off32 = new referee('Mr Ref 32', 'M1C', '03', false, false, false);
+
+let off33 = new referee('Mr Ref 33', 'M1C', '07', false, false, false);
+let off34 = new referee('Mr Ref 34', 'M2', '10', false, false, false);
+let off35 = new referee('Mr Ref 35', 'M2', '11', false, false, false);
+let off36 = new referee('Mr Ref 36', 'M2', '09', false, false, false);
+
+let off37 = new referee('Mr Ref 37', 'M2', '01', false, false, false);
+let off38 = new referee('Mr Ref 38', 'M2', '05', false, false, false);
+let off39 = new referee('Mr Ref 39', 'M2', '03', false, false, false);
+let off40 = new referee('Mr Ref 40', 'M3', '01', false, false, false);
+
+let off41 = new referee('Mr Ref 41', 'M3', '15', false, false, false);
+let off42 = new referee('Mr Ref 42', 'M3', '18', false, false, false);
+let off43 = new referee('Mr Ref 43', 'M3', '02', false, false, false);
+let off44 = new referee('Mr Ref 44', 'M3', '17', false, false, false);
+
+arr[00] = off00;
+arr[01] = off01;
+arr[02] = off02;
+arr[03] = off03;
+arr[04] = off04;
+
+arr[05] = off05;
+arr[06] = off06;
+arr[07] = off07;
+arr[08] = off08;
+
+arr[09] = off09;
+arr[10] = off10;
+arr[11] = off11;
+arr[12] = off12;
+
+arr[13] = off13;
+arr[14] = off14;
+arr[15] = off15;
+arr[16] = off16;
+
+arr[17] = off17;
+arr[18] = off18;
+arr[19] = off19;
+arr[20] = off20;
+
+arr[21] = off21;
+arr[22] = off22;
+arr[23] = off23;
+arr[24] = off24;
+
+arr[25] = off25;
+arr[26] = off26;
+arr[27] = off27;
+arr[28] = off28;
+
+arr[29] = off29;
+arr[30] = off30;
+arr[31] = off31;
+arr[32] = off32;
+
+arr[33] = off33;
+arr[34] = off34;
+arr[35] = off35;
+arr[36] = off36;
+
+arr[37] = off37;
+arr[38] = off38;
+arr[39] = off39;
+arr[40] = off40;
+
+arr[41] = off41;
+arr[42] = off42;
+arr[43] = off43;
+arr[44] = off44;
 }
 console.log(arr);
 
-generateLists(4, 2, arr);
-
+// generateLists(8, 1, arr);
+document.getElementById('generate-lists-btn').onclick = function(){generateLists(9, 4, arr);}
 
 function generateLists(numOfMats, numOfSessions, listOfOfficials){
     for (let i = 1; i <= numOfSessions*1.6; i++) {
@@ -233,14 +392,48 @@ function generateLists(numOfMats, numOfSessions, listOfOfficials){
         for (let j = 0; j <= numOfMats; j++) {
             mats[j] = new Mat();
         }
-        for (let j = 0; j < listOfOfficials.length; j++) {
+        //add to jury
+
+        let jurySize = Math.ceil(listOfOfficials.length * .05);
+        console.log(jurySize);
+        for (let j = 0; j < jurySize; j++) {
             var ref = queue.pop();
-            mats[j%(numOfMats+1)].addOfficial(ref);
-            if(j<listOfOfficials.length*.3){
-                ref.decrPrioX(j/(1+listOfOfficials.length*.3));
+            if(ref.canJury){
+                mats[0].addOfficial(ref);
+                console.log('add ' + ref.name + ' to jury');
+                ref.decrPrioX(.5);
+                continue;
             }
-            ref.incrPrio(2);
+            j-=.8;
+            console.log(ref);
+            console.log(ref + ' ref');
+            ref.decrPrioX(.4);
+            queue.push(ref, ref.prio);
         }
+        console.log('Jury: ' + mats[0].toString());
+
+        let matNum = 1;
+        while(queue.getSize() > 0){
+            console.log('mat num = ' +matNum + '    queue size = ' + queue.getSize());
+            let ref = queue.pop();
+            var boolPlacedOnMat = refToMat(ref, mats[matNum]);
+            if(boolPlacedOnMat){
+                console.log('placed on mat = ' +matNum);
+                ref.decrPrioX(numOfMats*.05 *matNum);
+                // console.log('total num of mats ' +numOfMats);
+                matNum++;
+                if(matNum > numOfMats) matNum = 1;
+                console.log('move to mat = ' +matNum + '    queue size = ' + queue.getSize());
+            } else {
+                ref.decrPrioX(.7);
+                queue.push(ref, ref.prio);
+            }
+        }
+        console.log('exited while loop# ' + i);
+
+        listOfOfficials.forEach(element => {
+            element.incrPrio(3);
+        });
 
         for (let j = 0; j <= numOfMats; j++) {
             listDiv.appendChild(mats[j].matAsDiv(j));            
@@ -248,6 +441,39 @@ function generateLists(numOfMats, numOfSessions, listOfOfficials){
         document.getElementById('generated-lists').appendChild(listDiv);
         listDiv.append(document.createElement('hr'));
    }
+}
+
+function refToMat(official, mat){
+    console.log('entered refToMat: ' + official.name + ' ');
+    if(official.canX() && !mat.hasX()){
+        mat.officials[0] = official;
+        console.log(official.name + 'is X')
+        return true;
+    }
+    if(official.canY() && !mat.hasY()){
+        mat.officials[1] = official;
+        console.log(official.name + 'is Y')
+        return true;
+    }
+    switch (official.catagory) {
+        case 'M1':
+            mat.addOfficialStartAt(official, 4);
+            return true;
+
+        case 'M1C':
+            mat.addOfficialStartAt(official, 32);
+            return true;
+
+        case 'M2':
+            mat.addOfficialStartAt(official, 64);
+            return true;
+
+        case 'M3':
+            mat.addOfficialStartAt(official, 80);
+            return true;
+    }
+    console.log(official.name + 'did not find a spot on this mat || Cat: ' + official.catagory);
+    return false;
 }
 
 function generateQueue(list){
