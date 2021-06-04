@@ -20,8 +20,7 @@ class PriorityQueue {
     pop(){
         let topPriority = this.heapArr[root];
         this.heapArr[root] = this.heapArr.pop();
-        if (this.heapArr[root] == topPriority){ 
-            console.log('samsies');
+        if (this.heapArr[root] == topPriority){ // console.log('samsies');
             this.heapArr.pop();
             return topPriority[0];}
         this.siftDown();
