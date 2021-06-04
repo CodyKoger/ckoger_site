@@ -1,4 +1,5 @@
 var multipliers = [1, 1, 1, 1, 1, 1, 1];//[m3, m2, m1c, m1, x, y, jury]
+var numberOfMats = document.getElementById('number-mats').value, numberOfSessions = document.getElementById('number-sessions').value;
 function setMultiplier(index, val) {
     multipliers[index] = val;
 }
@@ -10,13 +11,41 @@ document.getElementById('allow-x-value').onchange = setMultiplier(4, document.ge
 document.getElementById('allow-y-value').onchange = setMultiplier(5, document.getElementById('allow-y-value').value);
 document.getElementById('allow-jury-value').onchange = setMultiplier(6, document.getElementById('allow-jury-value').value);
 
+document.getElementById('number-mats').onchange = function changeMatsValue() {
+    numberOfMats = document.getElementById('number-mats').value;
+    numberOfMats = Math.ceil(numberOfMats);
+    document.getElementById('number-mats').value = numberOfMats;
+    if (numberOfMats < 1) {
+        numberOfMats = 1;
+        document.getElementById('number-mats').value = 1;
+    }
+    if (numberOfMats > 128) {
+        numberOfMats = 128;
+        document.getElementById('number-mats').value = 128;
+    }
+    // console.log(numberOfMats);
+}
+document.getElementById('number-sessions').onchange = function changeSessionsValue() {
+    numberOfSessions = document.getElementById('number-sessions').value;
+    numberOfSessions = Math.ceil(numberOfSessions);
+    document.getElementById('number-sessions').value = numberOfSessions;
+    if (numberOfSessions < 1) {
+        numberOfSessions = 1;
+        document.getElementById('number-sessions').value = 1;
+    }
+    if (numberOfSessions > 128) {
+        numberOfSessions = 128;
+        document.getElementById('number-sessions').value = 128;
+    }
+    // console.log(numberOfSessions);
+}
 
 function generatePriority(catagory, x, y, jury){
     let prio = Math.random() *.2 +.9;
     // console.log(prio);
     if (catagory == 'M1') {
         prio*=multipliers[3];
-    } else if (catagory == 'M1c'){
+    } else if (catagory == 'M1C'){
         prio*=multipliers[2];        
     } else if (catagory == 'M2'){
         prio*=multipliers[1];
@@ -30,6 +59,7 @@ function generatePriority(catagory, x, y, jury){
     if(jury) prio*=multipliers[6];
     if(x & !y) prio*=multipliers[5]*1.5;
     if(jury & !x) prio*=multipliers[4]*1.75;
+    if(jury & x & !y) prio*=multipliers[5]*1.7;
     return prio;
 }
 
@@ -73,13 +103,13 @@ class referee {
 // console.log(document.getElementsByClassName('add-official'));
 
 function addNewLine(){
-    console.log('entered add new line')
+    // console.log('entered add new line')
     var refLines = document.getElementsByClassName('official-info');
     var lastRefLine = refLines[refLines.length-1];
     if (refLines.length >=128) {alert('Too many officials. Not fully supported'); return;}
     var newLine = lastRefLine.cloneNode(true);
     newLine.id = 'official-' + (refLines.length +1) + '-info';
-    newLine.childNodes[1].innerHTML = refLines.length +1;
+    newLine.childNodes[1].innerHTML = properLabelText(refLines.length + 1);
     newLine.childNodes[3].id = 'official-' + (refLines.length +1) + '-name';
     newLine.childNodes[5].id = 'official-' + (refLines.length +1) + '-catagory';
     newLine.childNodes[7].id = 'official-' + (refLines.length +1) + '-state';
@@ -87,15 +117,24 @@ function addNewLine(){
     newLine.childNodes[11].id = 'official-' + (refLines.length +1) + '-y';
     newLine.childNodes[13].id = 'official-' + (refLines.length +1) + '-jury';
     
-    console.log(newLine.childNodes);
+    // console.log(newLine.childNodes);
     lastRefLine.append(newLine);   
 }
 function removeLine(){
-    console.log('line removed');
+    // console.log('line removed');
     var refLines = document.getElementsByClassName('official-info');
     if (refLines.length <2) return;
     var lastRefLine = refLines[refLines.length-1];
     lastRefLine.remove();
+}
+
+function properLabelText(number) {
+    if (number < 10) {
+        return '00' + number;
+    }
+    if (number < 100) {
+        return '0' + number;
+    }
 }
 
 document.getElementsByClassName('add-official')[0].onclick = function(){addNewLine()};
@@ -105,6 +144,7 @@ document.getElementsByClassName('remove-official')[1].onclick = function(){remov
 
 function generateArrOfOfficials(){
     let arr = [];
+    // console.log(document.getElementsByClassName('official-info').length);
     for (let i = 0; i < document.getElementsByClassName('official-info').length; i++) {
         let i1 = i+1;
         const element = document.getElementById('official-' + i1+'-catagory');
@@ -124,7 +164,7 @@ function generateArrOfOfficials(){
         let jury = document.getElementById('official-' +i1 +'-jury').checked;
     
         arr[i] = new referee(name, cat, state, x, y, jury);
-        console.log(arr[i].prio);
+        // console.log(arr[i].prio);
     }
 
     return arr;
@@ -177,9 +217,20 @@ class Mat {
     size(){
         let count = 0;
         for (let index = 0; index < this.officials.length; index++) {
-            if(this.officials[i] == null) continue;
+            if(this.officials[index] == null) continue;
             count++;
         }
+        // console.log('counted on mat: ' + count);
+        return count;
+    }
+
+    numFromState(state){
+        let count = 0;
+        for (let index = 0; index < this.officials.length; index++) {
+            if(this.officials[index] == null || this.officials[index].state != state) continue;
+            count++;
+        }
+        // console.log('counted on mat ' + count + ' from ' + state);
         return count;
     }
 
@@ -194,7 +245,7 @@ class Mat {
     matAsDiv(matNum){
         this.trimArr();
 
-        console.log(this.officials);
+        // console.log(this.officials);
         matNum += '';
         let div = document.createElement('div');
         let matName =document.createElement('strong');;
@@ -246,22 +297,156 @@ class Mat {
 
 
 
-// let mat1 = new Mat('off0');
-// let off1 = new referee('Mr Ref 1', 'M1', 'TX', true, false, true);
-// let off2 = new referee('Mr Ref 2', 'M1C', 'NY', false, true, false);
-// let off3 = new referee('Mr Ref 3', 'M2', 'UT', false, false, false);
-// let off4 = new referee('Mr Ref 4', 'M3', 'TN', false, false, false);
-// mat1.addOfficial(off1);
-// mat1.addOfficial(off2);
-// mat1.addOfficialAt(off4, 6);
-// mat1.addOfficial(off3);
-// document.getElementById('list-1').after(mat1.matAsDiv(2));
 
-// for (let int = 0; int < 24; int++){
-//     arr.push(new referee('ref '+ int, 'M' +(1+ int%3), 'st' + int, 0==int%3, 1==int%3 || 0==int%6, 0==int%8));
-// }
-// console.log(arr);
-// generateLists(4, 2, arr);
+document.getElementById('generate-lists-btn').onclick = function(){
+    let offList = generateArrOfOfficials();
+    // console.log(offList);
+    if (offList.length < 5) {
+        alert('List generation failed. Add more officials');
+        return;
+    }
+    generateLists(numberOfMats, numberOfSessions, offList);
+}
+
+
+
+var iteration = 0, maxIterations = 100;
+function generateLists(numOfMats, numOfSessions, listOfOfficials){
+    removeAllChildNodes(document.getElementById('generated-lists'));
+    for (let i = 1; i <= numOfSessions*1.6; i++) {
+        let queue = generateQueue(listOfOfficials);
+        let listDiv = document.createElement('div', {id: 'list-' +i}), h4 =document.createElement('h4');
+        h4.textContent = 'List ' + i;
+        listDiv.appendChild(h4);
+        let mats = new Array(numOfMats+1);
+        for (let j = 0; j <= numOfMats; j++) {
+            mats[j] = new Mat();
+        }
+        //add to jury
+
+        let jurySize = Math.ceil(listOfOfficials.length * .05);
+        // console.log(jurySize);
+        for (let j = 0; j < jurySize; j++) {
+            var ref = queue.pop();
+            // console.log(ref.state + ' count on jury = ' + mats[0].numFromState(ref.state));
+            if(ref.canJury() && mats[0].numFromState(ref.state) ==0){
+                mats[0].addOfficial(ref);
+                // console.log('add ' + ref.name + ' to jury');
+                ref.decrPrioX(.6);
+                continue;
+            }
+            j--;
+            // console.log(ref);
+            // console.log(ref + ' ref');
+            ref.decrPrioX(.9);
+            queue.push(ref, ref.prio);
+        }
+        // console.log('Jury: ' + mats[0].toString());
+
+        let matNum = 1;
+        iteration = 0, maxIterations = queue.getSize()*1.75;
+        while(queue.getSize() > 0){
+            // console.log('mat num = ' +matNum + '    queue size = ' + queue.getSize());
+            let ref = queue.pop();
+            var boolPlacedOnMat = refToMat(ref, mats[matNum], maxIterations - iteration);
+            if(boolPlacedOnMat){
+                // console.log('placed on mat = ' + matNum);
+                ref.decrPrioX(numOfMats*.05 *matNum);
+                // console.log('total num of mats ' +numOfMats);
+                matNum++;
+                if(matNum > numOfMats) matNum = 1;
+                iteration+=.625;
+                // console.log('move to mat = ' +matNum + '    queue size = ' + queue.getSize());
+            } else {
+                ref.decrPrioX(.7);
+                queue.push(ref, ref.prio);
+                iteration++;
+                // console.log(ref.name +' did not find a place on mat ' + matNum);
+                // console.log('iterations = ' + iteration + '   max iterations = ' + maxIterations);
+                if(queue.getSize() <= 4) iteration+=4;
+            }
+        }
+        // console.log('exited while loop# ' + i);
+
+        listOfOfficials.forEach(element => {
+            // console.log(element.name + ' prio = ' + element.prio);
+            element.incrPrio(3);
+            element.decrPrioX(1.4);
+            // console.log(element);
+            // console.log(element.name + ' prio = ' + element.prio);
+        });
+
+        for (let j = 0; j <= numOfMats; j++) {
+            listDiv.appendChild(mats[j].matAsDiv(j));            
+        }
+        document.getElementById('generated-lists').appendChild(listDiv);
+        listDiv.append(document.createElement('hr'));
+        // console.log(listOfOfficials);
+   }
+}
+
+function refToMat(official, mat, iterationsLeft){
+    // console.log('entered refToMat: ' + official.name + ' mat size = ' +mat.size() + '  from state = ' + mat.numFromState(official.state));
+    
+    if (iterationsLeft >= -1 && mat.size() < mat.numFromState(official.state) * 4.5) {
+        // console.log('too many from state ' + official.state);
+        return false;
+    }
+    
+    if(official.canX() && !mat.hasX()){
+        mat.officials[0] = official;
+        // console.log(official.name + 'is X')
+        return true;
+    }
+    if(official.canY() && !mat.hasY()){
+        mat.officials[1] = official;
+        // console.log(official.name + 'is Y')
+        return true;
+    }
+
+    // if( official.canJury() & official.canX() & !official.canY()){
+    //     official.decrPrioX(2);
+    // }
+
+    switch (official.catagory) {
+        case 'M1':
+            mat.addOfficialStartAt(official, 4);
+            return true;
+
+        case 'M1C':
+            mat.addOfficialStartAt(official, 32);
+            return true;
+
+        case 'M2':
+            mat.addOfficialStartAt(official, 64);
+            return true;
+
+        case 'M3':
+            mat.addOfficialStartAt(official, 80);
+            return true;
+    }
+    console.log(official.name + 'did not find a spot on this mat || Cat: ' + official.catagory);
+    return false;
+}
+
+function generateQueue(list){
+    let queue = new PriorityQueue();
+    for (let i = 0; i < list.length; i++) {
+        queue.push(list[i], list[i].prio);        
+    }
+    return queue;
+}
+
+function removeAllChildNodes(par){
+    // console.log('clearing ' + par)
+    while (par.firstChild) {
+        // console.log('remove: ' + par.firstChild);
+        par.removeChild(par.firstChild);
+    }
+}
+
+
+//test data set
 let arr = [45];
 if(true){
 let off00 = new referee('Mr Ref 00', 'M1', '01', true, false, true);
@@ -377,109 +562,27 @@ arr[42] = off42;
 arr[43] = off43;
 arr[44] = off44;
 }
-console.log(arr);
+document.getElementById('generate-test-btn').onclick = function() {
+    console.log(arr);
+    generateLists(numberOfMats, numberOfSessions, arr);
+}
+// let mat1 = new Mat('off0');
+// let off1 = new referee('Mr Ref 1', 'M1', 'TX', true, false, true);
+// let off2 = new referee('Mr Ref 2', 'M1C', 'NY', false, true, false);
+// let off3 = new referee('Mr Ref 3', 'M2', 'UT', false, false, false);
+// let off4 = new referee('Mr Ref 4', 'M3', 'TN', false, false, false);
+// mat1.addOfficial(off1);
+// mat1.addOfficial(off2);
+// mat1.addOfficialAt(off4, 6);
+// mat1.addOfficial(off3);
+// document.getElementById('list-1').after(mat1.matAsDiv(2));
+
+// for (let int = 0; int < 24; int++){
+//     arr.push(new referee('ref '+ int, 'M' +(1+ int%3), 'st' + int, 0==int%3, 1==int%3 || 0==int%6, 0==int%8));
+// }
+// console.log(arr);
+// generateLists(4, 2, arr);
+
+// console.log(arr);
 
 // generateLists(8, 1, arr);
-document.getElementById('generate-lists-btn').onclick = function(){generateLists(9, 4, arr);}
-
-function generateLists(numOfMats, numOfSessions, listOfOfficials){
-    for (let i = 1; i <= numOfSessions*1.6; i++) {
-        let queue = generateQueue(listOfOfficials);
-        let listDiv = document.createElement('div', {id: 'list-' +i}), h4 =document.createElement('h4');
-        h4.textContent = 'List ' + i;
-        listDiv.appendChild(h4);
-        let mats = new Array(numOfMats+1);
-        for (let j = 0; j <= numOfMats; j++) {
-            mats[j] = new Mat();
-        }
-        //add to jury
-
-        let jurySize = Math.ceil(listOfOfficials.length * .05);
-        console.log(jurySize);
-        for (let j = 0; j < jurySize; j++) {
-            var ref = queue.pop();
-            if(ref.canJury){
-                mats[0].addOfficial(ref);
-                console.log('add ' + ref.name + ' to jury');
-                ref.decrPrioX(.5);
-                continue;
-            }
-            j-=.8;
-            console.log(ref);
-            console.log(ref + ' ref');
-            ref.decrPrioX(.4);
-            queue.push(ref, ref.prio);
-        }
-        console.log('Jury: ' + mats[0].toString());
-
-        let matNum = 1;
-        while(queue.getSize() > 0){
-            console.log('mat num = ' +matNum + '    queue size = ' + queue.getSize());
-            let ref = queue.pop();
-            var boolPlacedOnMat = refToMat(ref, mats[matNum]);
-            if(boolPlacedOnMat){
-                console.log('placed on mat = ' +matNum);
-                ref.decrPrioX(numOfMats*.05 *matNum);
-                // console.log('total num of mats ' +numOfMats);
-                matNum++;
-                if(matNum > numOfMats) matNum = 1;
-                console.log('move to mat = ' +matNum + '    queue size = ' + queue.getSize());
-            } else {
-                ref.decrPrioX(.7);
-                queue.push(ref, ref.prio);
-            }
-        }
-        console.log('exited while loop# ' + i);
-
-        listOfOfficials.forEach(element => {
-            element.incrPrio(3);
-        });
-
-        for (let j = 0; j <= numOfMats; j++) {
-            listDiv.appendChild(mats[j].matAsDiv(j));            
-        }
-        document.getElementById('generated-lists').appendChild(listDiv);
-        listDiv.append(document.createElement('hr'));
-   }
-}
-
-function refToMat(official, mat){
-    console.log('entered refToMat: ' + official.name + ' ');
-    if(official.canX() && !mat.hasX()){
-        mat.officials[0] = official;
-        console.log(official.name + 'is X')
-        return true;
-    }
-    if(official.canY() && !mat.hasY()){
-        mat.officials[1] = official;
-        console.log(official.name + 'is Y')
-        return true;
-    }
-    switch (official.catagory) {
-        case 'M1':
-            mat.addOfficialStartAt(official, 4);
-            return true;
-
-        case 'M1C':
-            mat.addOfficialStartAt(official, 32);
-            return true;
-
-        case 'M2':
-            mat.addOfficialStartAt(official, 64);
-            return true;
-
-        case 'M3':
-            mat.addOfficialStartAt(official, 80);
-            return true;
-    }
-    console.log(official.name + 'did not find a spot on this mat || Cat: ' + official.catagory);
-    return false;
-}
-
-function generateQueue(list){
-    let queue = new PriorityQueue();
-    for (let i = 0; i < list.length; i++) {
-        queue.push(list[i], list[i].prio);        
-    }
-    return queue;
-}
