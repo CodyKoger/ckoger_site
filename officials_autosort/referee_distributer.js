@@ -1,4 +1,4 @@
-var multipliers = [1, 1, 1, 1, 1, 1, 1];//[m3, m2, m1c, m1, x, y, jury]
+var multipliers = [1, 1, 1, 1, 1, 1, 1, 1];//[m3, m2, m1c, m1, x, y, jury, Pref Mats]
 var numberOfMats = document.getElementById('number-mats').value, numberOfSessions = document.getElementById('number-sessions').value;
 function setMultiplier(index, val) {
     multipliers[index] = val;
@@ -10,6 +10,7 @@ document.getElementById('m1-value').onchange = setMultiplier(3, document.getElem
 document.getElementById('allow-x-value').onchange = setMultiplier(4, document.getElementById('allow-x-value').value);
 document.getElementById('allow-y-value').onchange = setMultiplier(5, document.getElementById('allow-y-value').value);
 document.getElementById('allow-jury-value').onchange = setMultiplier(6, document.getElementById('allow-jury-value').value);
+document.getElementById('pref-mat-value').onchange = setMultiplier(7, document.getElementById('pref-mat-value').value);
 
 document.getElementById('number-mats').onchange = function changeMatsValue() {
     numberOfMats = document.getElementById('number-mats').value;
@@ -40,7 +41,7 @@ document.getElementById('number-sessions').onchange = function changeSessionsVal
     // console.log(numberOfSessions);
 }
 
-function generatePriority(catagory, x, y, jury){
+function generatePriority(catagory, x, y, jury, prefMat){
     let prio = Math.random() *.2 +.9;
     // console.log(prio);
     if (catagory == 'M1') {
@@ -54,6 +55,7 @@ function generatePriority(catagory, x, y, jury){
         prio*=multipliers[0];
     }
 
+    if(prefMat) prio*=multipliers[7];   
     if(x) prio*=multipliers[4];
     if(y) prio*=multipliers[5];
     if(jury) prio*=multipliers[6];
@@ -64,15 +66,79 @@ function generatePriority(catagory, x, y, jury){
 }
 
 
+function range(string) {
+    // console.log('enter range| range: ' + string);
+    if (string.length < 1) return new Set();
+    
+    function makeRangeSet(string) {
+      let arr = [];
+      let arr1 = commaSepList(string);
+      for (let i = 0; i < arr1.length; i++) {
+        const e = arr1[i];
+        if (e.includes("-")) {
+          let a = dashOperatorList(e);
+          a.forEach((elm) => {
+            arr.push(elm);
+          });
+          continue;
+        }
+        arr.push(Number.parseInt(e, 10));
+      }
+    //   console.log(arr);
+      let s = new Set();
+      arr.forEach((element) => {
+        s.add(element);
+      });
+      return s;
+    }
+  
+    function commaSepList(string) {
+      let arr = string.split(",");
+      for (let i = 0; i < arr.length; i++) {
+        const element = arr[i];
+        if (isNaN(Number.parseInt(element, 10)) & !element.includes("-")) {
+          arr.splice(i, 1);
+          i--;
+          continue;
+        }
+      }
+      return arr;
+    }
+    function dashOperatorList(string) {
+      let arr = string.split("-");
+      let arrN = [];
+      let lowNum = Number.parseInt(arr[0], 10),
+        highNum = Number.parseInt(arr[1], 10);
+      for (let i = lowNum; i <= highNum; i++) {
+        arrN.push(i);
+      }
+      return arrN;
+    }
+  
+    // function setToString(set) {
+    //   let str = "";
+    //   set.forEach((e) => {
+    //     str += " " + e + ",";
+    //   });
+    //   return str;
+    // }
+    let s = makeRangeSet(string);
+    return s;
+  
+  }
+
 class referee {
-    constructor(name, catagory, state, X, Y, Jury) {
+    constructor(name, catagory, state, X, Y, Jury, prefMat) {
         this.name = name;
         this.catagory = catagory;
         this.state = state;
         this.X = X;
         this.Y = Y;
         this.Jury = Jury;
-        this.prio = generatePriority(catagory, X, Y, Jury);
+        this.prefMat = prefMat;
+        this.hasPrefMat = prefMat.size > 1 ? true : false;
+        this.prio = generatePriority(catagory, X, Y, Jury, this.hasPrefMat);
+        // console.log(this);
     }
 
     canJury() {
@@ -83,6 +149,19 @@ class referee {
     }
     canY() {
         return this.Y;
+    }
+
+    canWorkMat(index){
+        if(!this.hasPrefMat) return false;
+
+        // console.log(this.name + ' ' + index);
+        // console.log(this.prefMat);
+        
+        return this.prefMat.has(index);
+    }
+
+    regenPrio(){
+        this.prio = generatePriority(this.catagory, this.X, this.Y, this.Jury, this.hasPrefMat);
     }
 
     incrPrio(val) {
@@ -116,6 +195,7 @@ function addNewLine(){
     newLine.childNodes[9].id = 'official-' + (refLines.length +1) + '-x';
     newLine.childNodes[11].id = 'official-' + (refLines.length +1) + '-y';
     newLine.childNodes[13].id = 'official-' + (refLines.length +1) + '-jury';
+    newLine.childNodes[15].id = 'official-' + (refLines.length +1) + '-pref-mat';
     
     // console.log(newLine.childNodes);
     lastRefLine.append(newLine);   
@@ -162,9 +242,10 @@ function generateArrOfOfficials(){
         let x =document.getElementById('official-' +i1 +'-x').checked;
         let y =document.getElementById('official-' +i1 +'-y').checked;
         let jury = document.getElementById('official-' +i1 +'-jury').checked;
+        let prefMats= document.getElementById('official-' +i1 + '-pref-mat').value;
     
-        arr[i] = new referee(name, cat, state, x, y, jury);
-        // console.log(arr[i].prio);
+        arr[i] = new referee(name, cat, state, x, y, jury, range(prefMats));
+        console.log(arr[i] + range(prefMats));
     }
 
     return arr;
@@ -314,6 +395,7 @@ var iteration = 0, maxIterations = 100;
 function generateLists(numOfMats, numOfSessions, listOfOfficials){
     removeAllChildNodes(document.getElementById('generated-lists'));
     for (let i = 1; i <= numOfSessions*1.6; i++) {
+        for (let r = 0; i%2==0 & r < listOfOfficials.length; r++) listOfOfficials[0].regenPrio();
         let queue = generateQueue(listOfOfficials);
         let listDiv = document.createElement('div', {id: 'list-' +i}), h4 =document.createElement('h4');
         h4.textContent = 'List ' + i;
@@ -324,12 +406,13 @@ function generateLists(numOfMats, numOfSessions, listOfOfficials){
         }
         //add to jury
 
-        let jurySize = Math.ceil(listOfOfficials.length * .05);
+        let jurySize = Math.ceil(listOfOfficials.length * .04);
         // console.log(jurySize);
         for (let j = 0; j < jurySize; j++) {
             var ref = queue.pop();
             // console.log(ref.state + ' count on jury = ' + mats[0].numFromState(ref.state));
-            if(ref.canJury() && mats[0].numFromState(ref.state) ==0){
+            // console.log(ref.name + ' '+ (!ref.hasPrefMat|| ref.canWorkMat(0)));
+            if(ref.canJury() && mats[0].numFromState(ref.state) ==0 && (!ref.hasPrefMat|| ref.canWorkMat(0)) ){
                 mats[0].addOfficial(ref);
                 // console.log('add ' + ref.name + ' to jury');
                 ref.decrPrioX(.6);
@@ -344,10 +427,20 @@ function generateLists(numOfMats, numOfSessions, listOfOfficials){
         // console.log('Jury: ' + mats[0].toString());
 
         let matNum = 1;
-        iteration = 0, maxIterations = queue.getSize()*1.75;
+        iteration = 0, maxIterations = queue.getSize()*2;
         while(queue.getSize() > 0){
             // console.log('mat num = ' +matNum + '    queue size = ' + queue.getSize());
             let ref = queue.pop();
+            // console.log(ref.name + ' '+ matNum + ' '+(!ref.hasPrefMat|| ref.canWorkMat(matNum)));
+            if (ref.hasPrefMat && !ref.canWorkMat(matNum)) {
+                ref.decrPrioX(.85);
+                queue.push(ref, ref.prio);
+                iteration+=.5;
+                if (maxIterations - iteration > 0) {
+                    continue;
+                }
+                console.log('mat pref failed on iterations ' + iteration);
+            }
             var boolPlacedOnMat = refToMat(ref, mats[matNum], maxIterations - iteration);
             if(boolPlacedOnMat){
                 // console.log('placed on mat = ' + matNum);
@@ -376,8 +469,23 @@ function generateLists(numOfMats, numOfSessions, listOfOfficials){
             // console.log(element.name + ' prio = ' + element.prio);
         });
 
-        for (let j = 0; j <= numOfMats; j++) {
-            listDiv.appendChild(mats[j].matAsDiv(j));            
+        // for (let j = 0; j <= numOfMats; j++) {
+        //     listDiv.appendChild(mats[j].matAsDiv(j));            
+        // }
+        
+
+        listDiv.appendChild(mats[0].matAsDiv(0));
+
+        for (let j = 1; j < mats.length; j+=2) {
+            const e1 = mats[j].matAsDiv(j);
+            let parentDiv = document.createElement('div');
+                parentDiv.className = 'mats-pair';
+                parentDiv.appendChild(e1);
+            if(j < mats.length -1){
+                const e2 = mats[j+1].matAsDiv(j+1);
+                parentDiv.appendChild(e2);
+            }
+            listDiv.appendChild(parentDiv);
         }
         document.getElementById('generated-lists').appendChild(listDiv);
         listDiv.append(document.createElement('hr'));
@@ -449,62 +557,62 @@ function removeAllChildNodes(par){
 //test data set
 let arr = [45];
 if(true){
-let off00 = new referee('Mr Ref 00', 'M1', '01', true, false, true);
+let off00 = new referee('Mr Ref 00', 'M1', '01', true, false, true, range('0, 1, 2'));
 
-let off01 = new referee('Mr Ref 01', 'M1', '01', true, false, true);
-let off02 = new referee('Mr Ref 02', 'M1', '05', true, false, true);
-let off03 = new referee('Mr Ref 03', 'M1', '08', true, false, true);
-let off04 = new referee('Mr Ref 04', 'M1', '11', true, false, true);
+let off01 = new referee('Mr Ref 01', 'M1', '01', true, false, true, range('0-4'));
+let off02 = new referee('Mr Ref 02', 'M1', '05', true, false, true, range('0-5'));
+let off03 = new referee('Mr Ref 03', 'M1', '08', true, false, true, range('0-4'));
+let off04 = new referee('Mr Ref 04', 'M1', '11', true, false, true, range(''));
 
-let off05 = new referee('Mr Ref 05', 'M1', '06', true, false, true);
-let off06 = new referee('Mr Ref 06', 'M1', '04', true, false, true);
-let off07 = new referee('Mr Ref 07', 'M1', '17', true, true, true);
-let off08 = new referee('Mr Ref 08', 'M1', '07', true, true, true);
+let off05 = new referee('Mr Ref 05', 'M1', '06', true, false, true, range(''));
+let off06 = new referee('Mr Ref 06', 'M1', '04', true, false, true, range(''));
+let off07 = new referee('Mr Ref 07', 'M1', '17', true, true, true, range(''));
+let off08 = new referee('Mr Ref 08', 'M1', '07', true, true, true, range(''));
 
-let off09 = new referee('Mr Ref 09', 'M1', '09', true, true, false);
-let off10 = new referee('Mr Ref 10', 'M1', '12', true, true, false);
-let off11 = new referee('Mr Ref 11', 'M1', '01', true, true, false);
-let off12 = new referee('Mr Ref 12', 'M1', '15', true, true, false);
+let off09 = new referee('Mr Ref 09', 'M1', '09', true, true, false, range('1,2,4,5,8'));
+let off10 = new referee('Mr Ref 10', 'M1', '12', true, true, false, range('5-10'));
+let off11 = new referee('Mr Ref 11', 'M1', '01', true, true, false, range('4-9'));
+let off12 = new referee('Mr Ref 12', 'M1', '15', true, true, false, range(''));
 
-let off13 = new referee('Mr Ref 13', 'M1', '02', true, true, false);
-let off14 = new referee('Mr Ref 14', 'M1', '14', true, true, false);
-let off15 = new referee('Mr Ref 15', 'M1', '18', true, true, false);
-let off16 = new referee('Mr Ref 16', 'M1', '03', true, true, false);
+let off13 = new referee('Mr Ref 13', 'M1', '02', true, true, false, range(''));
+let off14 = new referee('Mr Ref 14', 'M1', '14', true, true, false, range(''));
+let off15 = new referee('Mr Ref 15', 'M1', '18', true, true, false, range(''));
+let off16 = new referee('Mr Ref 16', 'M1', '03', true, true, false, range(''));
 
-let off17 = new referee('Mr Ref 17', 'M1', '16', true, true, false);
-let off18 = new referee('Mr Ref 18', 'M1', '10', true, true, false);
-let off19 = new referee('Mr Ref 19', 'M1', '01', true, true, false);
-let off20 = new referee('Mr Ref 20', 'M1', '02', true, true, false);
+let off17 = new referee('Mr Ref 17', 'M1', '16', true, true, false, range(''));
+let off18 = new referee('Mr Ref 18', 'M1', '10', true, true, false, range(''));
+let off19 = new referee('Mr Ref 19', 'M1', '01', true, true, false, range(''));
+let off20 = new referee('Mr Ref 20', 'M1', '02', true, true, false, range(''));
 
-let off21 = new referee('Mr Ref 21', 'M1', '08', true, true, false);
-let off22 = new referee('Mr Ref 22', 'M1', '14', true, true, false);
-let off23 = new referee('Mr Ref 23', 'M1', '18', false, true, false);
-let off24 = new referee('Mr Ref 24', 'M1', '15', false, true, false);
+let off21 = new referee('Mr Ref 21', 'M1', '08', true, true, false, range(''));
+let off22 = new referee('Mr Ref 22', 'M1', '14', true, true, false, range(''));
+let off23 = new referee('Mr Ref 23', 'M1', '18', false, true, false, range(''));
+let off24 = new referee('Mr Ref 24', 'M1', '15', false, true, false, range(''));
 
-let off25 = new referee('Mr Ref 25', 'M1C', '12', false, true, false);
-let off26 = new referee('Mr Ref 26', 'M1C', '17', false, true, false);
-let off27 = new referee('Mr Ref 27', 'M1C', '06', false, true, false);
-let off28 = new referee('Mr Ref 28', 'M1C', '04', false, true, false);
+let off25 = new referee('Mr Ref 25', 'M1C', '12', false, true, false, range(''));
+let off26 = new referee('Mr Ref 26', 'M1C', '17', false, true, false, range(''));
+let off27 = new referee('Mr Ref 27', 'M1C', '06', false, true, false, range(''));
+let off28 = new referee('Mr Ref 28', 'M1C', '04', false, true, false, range(''));
 
-let off29 = new referee('Mr Ref 29', 'M1C', '16', false, false, false);
-let off30 = new referee('Mr Ref 30', 'M1C', '05', false, false, false);
-let off31 = new referee('Mr Ref 31', 'M1C', '01', false, false, false);
-let off32 = new referee('Mr Ref 32', 'M1C', '03', false, false, false);
+let off29 = new referee('Mr Ref 29', 'M1C', '16', false, false, false, range(''));
+let off30 = new referee('Mr Ref 30', 'M1C', '05', false, false, false, range(''));
+let off31 = new referee('Mr Ref 31', 'M1C', '01', false, false, false, range(''));
+let off32 = new referee('Mr Ref 32', 'M1C', '03', false, false, false, range(''));
 
-let off33 = new referee('Mr Ref 33', 'M1C', '07', false, false, false);
-let off34 = new referee('Mr Ref 34', 'M2', '10', false, false, false);
-let off35 = new referee('Mr Ref 35', 'M2', '11', false, false, false);
-let off36 = new referee('Mr Ref 36', 'M2', '09', false, false, false);
+let off33 = new referee('Mr Ref 33', 'M1C', '07', false, false, false, range(''));
+let off34 = new referee('Mr Ref 34', 'M2', '10', false, false, false, range(''));
+let off35 = new referee('Mr Ref 35', 'M2', '11', false, false, false, range(''));
+let off36 = new referee('Mr Ref 36', 'M2', '09', false, false, false, range(''));
 
-let off37 = new referee('Mr Ref 37', 'M2', '01', false, false, false);
-let off38 = new referee('Mr Ref 38', 'M2', '05', false, false, false);
-let off39 = new referee('Mr Ref 39', 'M2', '03', false, false, false);
-let off40 = new referee('Mr Ref 40', 'M3', '01', false, false, false);
+let off37 = new referee('Mr Ref 37', 'M2', '01', false, false, false, range(''));
+let off38 = new referee('Mr Ref 38', 'M2', '05', false, false, false, range(''));
+let off39 = new referee('Mr Ref 39', 'M2', '03', false, false, false, range(''));
+let off40 = new referee('Mr Ref 40', 'M3', '01', false, false, false, range(''));
 
-let off41 = new referee('Mr Ref 41', 'M3', '15', false, false, false);
-let off42 = new referee('Mr Ref 42', 'M3', '18', false, false, false);
-let off43 = new referee('Mr Ref 43', 'M3', '02', false, false, false);
-let off44 = new referee('Mr Ref 44', 'M3', '17', false, false, false);
+let off41 = new referee('Mr Ref 41', 'M3', '15', false, false, false, range(''));
+let off42 = new referee('Mr Ref 42', 'M3', '18', false, false, false, range(''));
+let off43 = new referee('Mr Ref 43', 'M3', '02', false, false, false, range(''));
+let off44 = new referee('Mr Ref 44', 'M3', '17', false, false, false, range(''));
 
 arr[00] = off00;
 arr[01] = off01;

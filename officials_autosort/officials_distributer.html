@@ -22,9 +22,9 @@
     <div class="mats-and-sessions">
         <h2>Mats and Sessions</h2>
         <label for="number-mats">Number of mats</label>
-        <input type="number" name="number-mats" id="number-mats" min="1" max="128" value="4">
+        <input type="number" name="number-mats" id="number-mats" min="1" max="128" value="8">
         <label for="number-sessions">Number of sessions</label>
-        <input type="number" name="number-sessions" id="number-sessions" min="1" max="128" value="2">
+        <input type="number" name="number-sessions" id="number-sessions" min="1" max="128" value="4">
     </div>
     <div class="multipliers">
         <h2>Multipliers</h2>
@@ -38,11 +38,13 @@
         <input type="number" name="m1-value" id="m1-value" min="1" max="32" value="5" required>
         <br>
         <label for="allow-x-value">Allow X</label>
-        <input type="number" name="allow-x-value" id="allow-x-value" min="1" max="32" value="8" required>
+        <input type="number" name="allow-x-value" id="allow-x-value" min="1" max="32" value="10" required>
         <label for="allow-y-value">Allow Y</label>
-        <input type="number" name="allow-y-value" id="allow-y-value" min="1" max="32" value="4" required>
+        <input type="number" name="allow-y-value" id="allow-y-value" min="1" max="32" value="5" required>
         <label for="allow-jury-value">Allow Jury</label>
-        <input type="number" name="allow-jury-value" id="allow-jury-value" min="1" max="32" value="10" required>
+        <input type="number" name="allow-jury-value" id="allow-jury-value" min="1" max="32" value="14" required>
+        <label for="pref-mat-value">Prefered Mat</label>
+        <input type="number" name="pref-mat-value" id="pref-mat-value" min="1" max="32" value="16" required>
     </div>
 
     <hr>
@@ -52,7 +54,7 @@
         <input type="button" value="+" class="add-official">
         <input type="button" value="-" class="remove-official">
         <br>
-        <h4>In order: [Official's Name, Catagory, State, Available for: {X, Y, Jury}]</h4>
+        <h4>In order: [Official's Name, Catagory, State, Available for: {X, Y, Jury}, Prefered Mats (range)]</h4>
     </div>
     <div class="officials-input">
         <div class="official-info" id="official-1-info">
@@ -69,6 +71,7 @@
             <input type="checkbox" name="official-x" id="official-1-x">
             <input type="checkbox" name="official-y" id="official-1-y">
             <input type="checkbox" name="official-jury" id="official-1-jury">
+            <input type="text" name="official-pref-mat" id="official-1-pref-mat" placeholder="Mats">
         </div>
     </div>
 
@@ -84,6 +87,78 @@
     <div class="generated-lists" id="generated-lists">
         <!-- <div class="list" id="list-1">
             <h4>List 1</h4>
+            <div class="mat-pair" style="display: flex;">
+                <div class="mat">
+                    <strong>Mat </strong>
+                    <table>
+                        <tr>
+                            <td>X</td>
+                            <td>Jim Flanders</td>
+                            <td>UT</td>
+                            <td>M1</td>
+                        </tr>
+                        <tr>
+                            <td>Y</td>
+                            <td>Tim Horas</td>
+                            <td>KT</td>
+                            <td>M1</td>
+                        </tr>
+                        <tr>
+                            <td> </td>
+                            <td>Bobby Black</td>
+                            <td>CT</td>
+                            <td>M1C</td>
+                        </tr>
+                        <tr>
+                            <td> </td>
+                            <td>Paul Quinzy</td>
+                            <td>LA</td>
+                            <td>M2</td>
+                        </tr>
+                        <tr>
+                            <td> </td>
+                            <td>Kid Billson</td>
+                            <td>TX</td>
+                            <td>M3</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="mat">
+                    <strong>Mat </strong>
+                    <table>
+                        <tr>
+                            <td>X</td>
+                            <td>Jim Flanders</td>
+                            <td>UT</td>
+                            <td>M1</td>
+                        </tr>
+                        <tr>
+                            <td>Y</td>
+                            <td>Tim Horas</td>
+                            <td>KT</td>
+                            <td>M1</td>
+                        </tr>
+                        <tr>
+                            <td> </td>
+                            <td>Bobby Black</td>
+                            <td>CT</td>
+                            <td>M1C</td>
+                        </tr>
+                        <tr>
+                            <td> </td>
+                            <td>Paul Quinzy</td>
+                            <td>LA</td>
+                            <td>M2</td>
+                        </tr>
+                        <tr>
+                            <td> </td>
+                            <td>Kid Billson</td>
+                            <td>TX</td>
+                            <td>M3</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
             <div class="mat">
                 <strong>Mat </strong>
                 <table>
@@ -119,6 +194,41 @@
                     </tr>
                 </table>
             </div>
+            <div class="mat">
+                <strong>Mat </strong>
+                <table>
+                    <tr>
+                        <td>X</td>
+                        <td>Jim Flanders</td>
+                        <td>UT</td>
+                        <td>M1</td>
+                    </tr>
+                    <tr>
+                        <td>Y</td>
+                        <td>Tim Horas</td>
+                        <td>KT</td>
+                        <td>M1</td>
+                    </tr>
+                    <tr>
+                        <td> </td>
+                        <td>Bobby Black</td>
+                        <td>CT</td>
+                        <td>M1C</td>
+                    </tr>
+                    <tr>
+                        <td> </td>
+                        <td>Paul Quinzy</td>
+                        <td>LA</td>
+                        <td>M2</td>
+                    </tr>
+                    <tr>
+                        <td> </td>
+                        <td>Kid Billson</td>
+                        <td>TX</td>
+                        <td>M3</td>
+                    </tr>
+                </table>
+            </div> 
         </div> -->
     </div>
 
@@ -126,6 +236,16 @@
         Bug report: <a href="mailto:cody.m.koger@gmail.com">cody.m.koger@gmail.com</a>
     </footer>
     <script src="referee_distributer.js"></script>
+    <style>
+        .mats-pair{
+            display: flex;
+        }
+        .mats-pair > div {
+            box-sizing: border-box;
+            margin: 10px 10px 0 0;
+            width:  160px;
+        }
+    </style>
 </body>
 
 </html>
