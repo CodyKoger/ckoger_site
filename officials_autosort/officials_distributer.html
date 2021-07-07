@@ -6,6 +6,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="PriorityQueue.js"></script>
+    <script src="Tests/set00.js"></script>
+    <script src="Resourses/papaparse.min.js"></script>
 
     <title>Cody's Referee Distriuter</title>
 </head>
@@ -25,6 +27,8 @@
         <input type="number" name="number-mats" id="number-mats" min="1" max="128" value="8">
         <label for="number-sessions">Number of sessions</label>
         <input type="number" name="number-sessions" id="number-sessions" min="1" max="128" value="4">
+        <label for="jury-on-off">Distribute Jury</label>
+        <input type="checkbox" name="jury-check" id="jury-check">
     </div>
     <div class="multipliers">
         <h2>Multipliers</h2>
@@ -53,11 +57,14 @@
         <label for="add-new-official">New Official Line</label>
         <input type="button" value="+" class="add-official">
         <input type="button" value="-" class="remove-official">
+        <input type="button" value="Clear Data" class="clear-data">
+        <input type="file" id="csv-file" accept=".csv">
+        <input type="button" value="Import CSV" id="import-csv">
         <br>
         <h4>In order: [Official's Name, Catagory, State, Available for: {X, Y, Jury}, Prefered Mats (range)]</h4>
     </div>
     <div class="officials-input">
-        <div class="official-info" id="official-1-info">
+        <!-- <div class="official-info" id="official-1-info">
             <label for="official-number">001</label>
             <input type="text" name="official-name" id="official-1-name" placeholder="Name">
             <select name="official-catagory" id="official-1-catagory">
@@ -72,15 +79,17 @@
             <input type="checkbox" name="official-y" id="official-1-y">
             <input type="checkbox" name="official-jury" id="official-1-jury">
             <input type="text" name="official-pref-mat" id="official-1-pref-mat" placeholder="Mats">
-        </div>
+        </div> -->
     </div>
 
     <div class="add-remove-line-gen-lists">
         <br><br>
         <input type="button" value="+" class="add-official">
         <input type="button" value="-" class="remove-official">
+        <input type="button" value="Clear Data" class="clear-data">
         <input type="button" value="Generate Lists" class="generate-lists-btn" id="generate-lists-btn">
         <input type="button" value="Generate With Test Set" class="generate-test-btn" id="generate-test-btn">
+        <input type="button" value="Import Test Set to Input Area" class="import-test-inputs" id="inport-test-inputs">
     </div>
     <hr>
 
@@ -243,9 +252,21 @@
         .mats-pair > div {
             box-sizing: border-box;
             margin: 10px 10px 0 0;
-            width:  160px;
+            width:  280px;
         }
     </style>
+    <script type="text/javascript">
+        document.getElementById('import-csv').onclick = function(){
+            var file = document.getElementById('csv-file').files[0];
+            Papa.parse(file, {
+                download: true,
+                header: true,
+                complete: function(r){
+                    submitCSVFile(r);
+                }
+            });
+        }
+    </script>
 </body>
 
 </html>
