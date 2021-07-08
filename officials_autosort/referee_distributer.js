@@ -41,27 +41,63 @@ document.getElementById('number-sessions').onchange = function changeSessionsVal
     // console.log(numberOfSessions);
 }
 
-function generatePriority(catagory, x, y, jury, prefMat) {
-    let prio = Math.random() * .2 + .9;
+function generatePriority(catagory, x, y, jury, prefMats) {
+    let prio = Math.random() * .3 + .9;
+    // console.log(prio);
+    let prefMat = prefMats >0 ? true : false;
+    if (prefMats > 4)  {prio+=.1;
+        // console.log('>4?: ' + prefMats + '  ' + prefMat)
+    }
+    else if (prefMats == 4)  {prio+=.24;
+        // console.log('==4?: ' + prefMats+ '  ' + prefMat)
+    }
+    else if (prefMats == 3)  {prio+=.38;
+        // console.log('==3?: ' + prefMats+ '  ' + prefMat)
+    }
+    else if (prefMats == 2)  {prio+=.6;
+        // console.log('==2?: ' + prefMats+ '  ' + prefMat)
+    }
+    else if (prefMats == 1)  {prio+=.9;
+        // console.log('==1?: ' + prefMats+ '  ' + prefMat)
+}
+    if (prefMat) prio += .2;
     // console.log(prio);
     if (catagory == 'M1') {
         prio *= multipliers[3];
+        // console.log('M1 ' + multipliers[3] + ' makes ' + prio)
     } else if (catagory == 'M1C') {
         prio *= multipliers[2];
+        // console.log('M1C ' + multipliers[2] + ' makes ' + prio)
     } else if (catagory == 'M2') {
         prio *= multipliers[1];
+        // console.log('M2 ' + multipliers[1] + ' makes ' + prio)
     }
     else {
         prio *= multipliers[0];
+        // console.log('M1 ' + multipliers[0] + ' makes ' + prio)
     }
 
-    if (prefMat) prio *= multipliers[7];
-    if (x) prio *= multipliers[4];
-    if (y) prio *= multipliers[5];
-    if (jury) prio *= multipliers[6];
-    if (x & !y) prio *= multipliers[5] * 1.5;
-    if (jury & !x) prio *= multipliers[4] * 1.75;
-    if (jury & x & !y) prio *= multipliers[5] * 1.7;
+    if (prefMat) {prio *= multipliers[7]; 
+        // console.log('prefMat ' + multipliers[7] + ' makes ' + prio)
+    }
+    if (x) {prio *= multipliers[4];
+        // console.log('x ' + multipliers[4] + ' makes ' + prio)
+    }
+    if (y) {prio *= multipliers[5];
+        // console.log('y ' + multipliers[5] + ' makes ' + prio)
+    }
+    if (jury) {prio *= multipliers[6];
+        // console.log('jury ' + multipliers[6] + ' makes ' + prio)
+    }
+    if (x & !y) {prio *= multipliers[5] * 1.5;
+        // console.log('x&!y ' + multipliers[5]*1.5 + ' makes ' + prio)
+    }
+    if (jury & !x) {prio *= multipliers[4] * 1.75;
+        // console.log('jury&!x ' + multipliers[4]*1.75 + ' makes ' + prio)
+    }
+    if (jury & x & !y) {prio *= multipliers[5] * 1.7;
+        // console.log('jury&x&!y ' + multipliers[5]*1.7 + ' makes ' + prio)
+    }
     return prio;
 }
 
@@ -136,8 +172,9 @@ class referee {
         this.Y = Y;
         this.Jury = Jury;
         this.prefMat = prefMat;
-        this.hasPrefMat = prefMat.size > 1 ? true : false;
-        this.prio = generatePriority(catagory, X, Y, Jury, this.hasPrefMat);
+        this.prefMatsNum = prefMat.size;
+        this.hasPrefMat = this.prefMatsNum>0? true:false;
+        this.prio = generatePriority(catagory, X, Y, Jury, this.prefMatsNum);
         // console.log(this);
     }
 
@@ -152,7 +189,7 @@ class referee {
     }
 
     canWorkMat(index) {
-        if (!this.hasPrefMat) return false;
+        if (this.prefMatsNum<1) return false;
 
         // console.log(this.name + ' ' + index);
         // console.log(this.prefMat);
@@ -165,7 +202,7 @@ class referee {
     }
 
     regenPrio() {
-        this.prio = generatePriority(this.catagory, this.X, this.Y, this.Jury, this.hasPrefMat);
+        this.prio = generatePriority(this.catagory, this.X, this.Y, this.Jury, this.prefMatsNum);
     }
 
     incrPrio(val) {
@@ -329,6 +366,7 @@ function generateArrOfOfficials() {
         const element = document.getElementById('official-' + i1 + '-catagory');
         // console.log(element);
         let name = document.getElementById('official-' + i1 + '-name').value;
+        if (name.length < 1)   continue;
         let cat = document.getElementById('official-' + i1 + '-catagory').options[element.selectedIndex].text;
         let state = document.getElementById('official-' + i1 + '-state').value;
         let x = document.getElementById('official-' + i1 + '-x').checked;
@@ -483,7 +521,7 @@ function generateLists(numOfMats, numOfSessions, listOfOfficials) {
     // console.log(numOfSessions)
     let juryOn = document.getElementById('jury-check').checked;
     for (let i = 1; i <= numOfSessions * 1.6; i++) {
-        for (let r = 0; i % 2 == 0 & r < listOfOfficials.length; r++) listOfOfficials[0].regenPrio();
+        for (let r = 0; i % 3 == 0 & r < listOfOfficials.length; r++) listOfOfficials[r].regenPrio();
         let queue = generateQueue(listOfOfficials);
         let listDiv = document.createElement('div', { id: 'list-' + i }), h4 = document.createElement('h4');
         h4.textContent = 'List ' + i;
@@ -492,6 +530,7 @@ function generateLists(numOfMats, numOfSessions, listOfOfficials) {
         for (let j = 0; j <= numOfMats; j++) {
             mats[j] = new Mat();
         }
+        // console.log(listOfOfficials)
         //add to jury
 
         let jurySize = Math.ceil(listOfOfficials.length * .04);
@@ -519,15 +558,16 @@ function generateLists(numOfMats, numOfSessions, listOfOfficials) {
         while (queue.getSize() > 0) {
             // console.log('mat num = ' +matNum + '    queue size = ' + queue.getSize());
             let ref = queue.pop();
-            // console.log(ref.name + ' '+ matNum + ' '+(!ref.hasPrefMat|| ref.canWorkMat(matNum)));
+            // console.log(ref.name + ' '+ matNum + ' '+(ref.hasPrefMat && ref.canWorkMat(matNum)) + ' ' + ref.prio);
             if (ref.hasPrefMat && !ref.canWorkMat(matNum)) {
-                ref.decrPrioX(.85);
-                queue.push(ref, ref.prio);
-                iteration += .5;
-                if (maxIterations - iteration > 0) {
+                if (maxIterations - iteration >= 0) {
+                    ref.decrPrioX(.85);
+                    queue.push(ref, ref.prio);
+                    iteration += .325;
                     continue;
                 }
-                // console.log('mat pref failed on iterations ' + iteration);
+                iteration*=.7;
+                // console.log('ref goes to mat ' + matNum + ', iteration ' + (maxIterations -iteration) + ', ' + ref.name)
             }
             var boolPlacedOnMat = refToMat(ref, mats[matNum], maxIterations - iteration);
             if (boolPlacedOnMat) {
@@ -661,7 +701,7 @@ document.getElementById('generate-test-btn').onclick = function () {
     generateLists(numberOfMats, numberOfSessions, testARR00);
 }
 document.getElementById('inport-test-inputs').onclick = function () {
-    console.log(testARR00);
+    // console.log(testARR00);
     let elm = testARR00[0];
     setLineData(1, elm.name, 3, elm.state, elm.canX(), elm.canY(), elm.canJury, elm.preferedMats());
     for (let i = 1; i < testARR00.length; i++) {
